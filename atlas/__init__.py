@@ -1,0 +1,39 @@
+"""ATLAS + NEXUS + APEX + OUROBOROS: Adaptive Architecture Search Framework."""
+
+from .searchers import REA, PAR, FLAS, ATLAS, PARConfig, FLASConfig, ATLASConfig
+from .landscapes import NKLandscape, NASBench201Surrogate, SyntheticNASLandscape
+from .theory import compute_bounds
+from .nexus import (
+    NEXUS, NEXUSConfig,
+    PersistentHomologyProbe, TopologicalFingerprint,
+    SpectralSurrogate, DiscreteCurvatureTensor,
+    InformationDirectedAllocator,
+)
+from .apex import (
+    APEX, APEXConfig,
+    WalshFeatureEngine, VariableInteractionGraph,
+    PartitionCrossover, SampleDatabase,
+)
+from .ouroboros import (
+    OUROBOROS, OUROBOROSConfig,
+    MetaController, AdversarialGenerator,
+    LandscapeFeatures, SearchConfig,
+    ConfigurableSearchEngine,
+)
+
+__version__ = "0.4.0"
+__all__ = [
+    "REA", "PAR", "FLAS", "ATLAS", "NEXUS", "APEX", "OUROBOROS",
+    "PARConfig", "FLASConfig", "ATLASConfig", "NEXUSConfig", "APEXConfig",
+    "OUROBOROSConfig",
+    "NKLandscape", "NASBench201Surrogate", "SyntheticNASLandscape",
+    "PersistentHomologyProbe", "TopologicalFingerprint",
+    "SpectralSurrogate", "DiscreteCurvatureTensor",
+    "InformationDirectedAllocator",
+    "WalshFeatureEngine", "VariableInteractionGraph",
+    "PartitionCrossover", "SampleDatabase",
+    "MetaController", "AdversarialGenerator",
+    "LandscapeFeatures", "SearchConfig",
+    "ConfigurableSearchEngine",
+    "compute_bounds",
+]
