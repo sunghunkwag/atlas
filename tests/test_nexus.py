@@ -1,1 +1,0 @@
-$(cat /sessions/upbeat-festive-mccarthy/atlas/tests/test_nexus.py)
