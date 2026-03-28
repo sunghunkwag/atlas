@@ -245,8 +245,8 @@ class ConfigurableSearchEngine:
     def __init__(self, n_probes: int = 5, n_bits: int = 8, seed: int = 0):
         self.n_probes = n_probes
         self.n_bits = n_bits
+        self.seed = seed
         self.rng = np.random.RandomState(seed)
-        self.engine = APEX(n_bits, seed=seed)
 
     def execute(
         self,
@@ -255,12 +255,12 @@ class ConfigurableSearchEngine:
         config: SearchConfig,
     ) -> Tuple[SearchResult, LandscapeFeatures]:
         """Execute search on landscape with given config.
-        
+
         Args:
             landscape: NKLandscape or surrogate
             budget: total evaluation budget
             config: SearchConfig with strategy parameters
-        
+
         Returns:
             (SearchResult, LandscapeFeatures) tuple
         """
@@ -268,17 +268,18 @@ class ConfigurableSearchEngine:
         probe_budget = max(1, int(budget * config.probe_fraction))
         features = self._probe_landscape(landscape, probe_budget)
 
-        # Configure APEX with SearchConfig parameters
+        # Create APEX engine with correct landscape parameters
+        n_ops = getattr(landscape, 'O', 2)
         cfg = APEXConfig(
-            n_local_search=config.hc_restarts,
-            pop_size=config.ga_population,
-            generations=config.ga_generations,
+            ils_max_stagnant=config.ils_max_stagnant,
+            evolution_pop_size=config.ga_population,
+            probe_fraction=config.probe_fraction,
         )
-        self.engine.config = cfg
+        engine = APEX(n_ops, self.n_bits, config=cfg, seed=self.seed)
 
         # Search phase
         search_budget = budget - probe_budget
-        result = self.engine.search(landscape, budget=search_budget)
+        result = engine.search(landscape, budget=search_budget)
         result.total_evals = probe_budget + result.total_evals
 
         return result, features
@@ -288,8 +289,9 @@ class ConfigurableSearchEngine:
         samples = []
         fitnesses = []
         for _ in range(budget):
-            x = self.rng.randint(0, 2, self.n_bits)
-            fx = landscape.evaluate(x)
+            n_ops = getattr(landscape, 'O', 2)
+            x = self.rng.randint(0, n_ops, self.n_bits)
+            fx = landscape(x)
             samples.append(x)
             fitnesses.append(fx)
 
@@ -311,7 +313,7 @@ class ConfigurableSearchEngine:
             fitness_range=fitness_range,
             modular_clustering=modular_clustering,
             n_edges=self.n_bits,
-            n_ops=getattr(landscape, 'n_ops', 5),
+            n_ops=getattr(landscape, 'O', 5),
         )
 
 
@@ -486,16 +488,16 @@ class AdversarialGenerator:
         specs = []
         for i in range(batch_size):
             # Sample base N, K, O
-            n = self.rng.randint(6, 19)
-            k = self.rng.randint(1, n)
-            o = self.rng.randint(3, 8)
+            n = self.rng.randint(6, 13)
+            k = self.rng.randint(1, min(n, 6))
+            o = self.rng.randint(3, 6)
             seed = self.rng.randint(0, 2**31)
 
             # With difficulty_bias probability, increase difficulty
             if self.rng.uniform() < difficulty_bias:
                 # Make it harder: increase N and K/N ratio
-                n = min(18, n + self.rng.randint(2, 5))
-                k = min(n - 1, k + self.rng.randint(1, 3))
+                n = min(12, n + self.rng.randint(1, 3))
+                k = min(n - 1, min(6, k + self.rng.randint(1, 3)))
 
             specs.append((n, k, o, seed))
         return specs
@@ -608,8 +610,9 @@ class OUROBOROS(BaseSearcher):
                 landscape = NKLandscape(n, k, o, seed=seed)
 
                 # Try different budgets and configs
+                strategies = _build_strategy_pool()
                 for budget in meta_cfg.budgets:
-                    for cfg_idx, config in enumerate(_build_strategy_pool()):
+                    for cfg_idx, config in enumerate(strategies):
                         # Run search
                         engine = ConfigurableSearchEngine(
                             n_probes=3, n_bits=n, seed=seed
@@ -623,6 +626,7 @@ class OUROBOROS(BaseSearcher):
                             controller.add_experience(
                                 features, cfg_idx, result.best_fitness
                             )
+                        del engine
 
             # Update difficulty bias
             difficulty_bias = generator.get_difficulty_bias()
