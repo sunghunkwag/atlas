@@ -14,12 +14,6 @@ from .apex import (
     WalshFeatureEngine, VariableInteractionGraph,
     PartitionCrossover, SampleDatabase,
 )
-from .ouroboros import (
-    OUROBOROS, OUROBOROSConfig,
-    MetaController, AdversarialGenerator,
-    LandscapeFeatures, SearchConfig,
-    ConfigurableSearchEngine,
-)
 from .rgso import (
     RGSO, RGSOConfig,
     CoarsenedVariable, CoarseningLevel,
@@ -36,9 +30,6 @@ __all__ = [
     "InformationDirectedAllocator",
     "WalshFeatureEngine", "VariableInteractionGraph",
     "PartitionCrossover", "SampleDatabase",
-    "MetaController", "AdversarialGenerator",
-    "LandscapeFeatures", "SearchConfig",
-    "ConfigurableSearchEngine",
     "CoarsenedVariable", "CoarseningLevel",
     "compute_bounds",
 ]

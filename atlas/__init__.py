@@ -1,19 +1,15 @@
-"""ATLAS + NEXUS + APEX + OUROBOROS: Adaptive Architecture Search Framework."""
+"""ATLAS + NEXUS + APEX + OUROBOROS + CODA: Adaptive Architecture Search Framework."""
 
-from .searchers import REA, PAR, FLAS, ATLAS, PARConfig, FLASConfig, ATLASConfig
-from .landscapes import NKLandscape, NASBench201Surrogate, SyntheticNASLandscape
-from .theory import compute_bounds
-from .nexus import (
-    NEXUS, NEXUSConfig,
-    PersistentHomologyProbe, TopologicalFingerprint,
-    SpectralSurrogate, DiscreteCurvatureTensor,
-    InformationDirectedAllocator,
-)
-from .apex import (
-    APEX, APEXConfig,
-    WalshFeatureEngine, VariableInteractionGraph,
-    PartitionCrossover, SampleDatabase,
-)
+import sys
+import os
+
+# Ensure root package directory is on the path so sub-modules can find
+# top-level modules (searchers, landscapes, apex, etc.)
+_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+
+from .coda import CODA, CODAConfig, CoImprovementTracker
 from .ouroboros import (
     OUROBOROS, OUROBOROSConfig,
     MetaController, AdversarialGenerator,
@@ -23,17 +19,9 @@ from .ouroboros import (
 
 __version__ = "0.4.0"
 __all__ = [
-    "REA", "PAR", "FLAS", "ATLAS", "NEXUS", "APEX", "OUROBOROS",
-    "PARConfig", "FLASConfig", "ATLASConfig", "NEXUSConfig", "APEXConfig",
-    "OUROBOROSConfig",
-    "NKLandscape", "NASBench201Surrogate", "SyntheticNASLandscape",
-    "PersistentHomologyProbe", "TopologicalFingerprint",
-    "SpectralSurrogate", "DiscreteCurvatureTensor",
-    "InformationDirectedAllocator",
-    "WalshFeatureEngine", "VariableInteractionGraph",
-    "PartitionCrossover", "SampleDatabase",
+    "CODA", "CODAConfig", "CoImprovementTracker",
+    "OUROBOROS", "OUROBOROSConfig",
     "MetaController", "AdversarialGenerator",
     "LandscapeFeatures", "SearchConfig",
     "ConfigurableSearchEngine",
-    "compute_bounds",
 ]
